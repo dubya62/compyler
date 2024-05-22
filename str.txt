@@ -1,0 +1,19 @@
+# This is the documentation for the string.c file
+## string.c contains functions that mirror their python versions
+    - There are many different versions of the same function
+    - Some versions are for passing by copy, reference, or creating a dynamic version
+    - Other versions are for overloading the parameters (denoted by the number at the end of them
+
+
+## str_x_init_N()
+
+### str_c_init()
+    - Takes in a string and allocates memory for it
+
+### str_r_init()
+    - Takes in a string and a memory location and creates the structure there
+    - Allocates sizeof(str) + ((strlen(data) + 1) * sizeof(char))
+
+### 
+
+
