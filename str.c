@@ -14,9 +14,22 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "str.h"
+
 #define True 1
 #define False 0
 
+#ifndef SINT
+#define SINT
+typedef struct {
+    int length; // the number of elements in the array
+    int sign; 
+    unsigned int* cont;
+} sint;
+#endif
+
+#ifndef STR
+#define STR
 // static str object
 typedef struct{
     // length does not include the null terminator
@@ -24,6 +37,7 @@ typedef struct{
     // cont should be a buffer of size at least length+1
     char* cont; // contents of the string
 } str;
+#endif
 
 // initialize a static str object
 str* str_c_init(char* data){
@@ -441,74 +455,298 @@ str* str_r_lstrip(str* instance, void* ref, str* chars){
 strip()	Returns a trimmed version of the string
 */
 str* str_c_strip(str* instance, str* chars){
-    // find out how many chars need to be removed from the end
-    int iterator = 0;
+    int before = 0;
+    int after = instance->length;
     str* curr = str_c_init_2(1);
-    curr->cont[0] = instance->cont[iterator];
-    while (str_n_in(curr, chars) && iterator < instance->length){
-        iterator++;
-        curr->cont[0] = instance->cont[iterator];
+    curr->cont[0] = instance->cont[after];
+    while (str_n_in(curr, chars) && after > 0){
+        after--;
+        curr->cont[0] = instance->cont[after];
+    }
+    curr->cont[0] = instance->cont[before];
+    while (str_n_in(curr, chars) && before < after){
+        before++;
+        curr->cont[0] = instance->cont[before];
     }
     str_n_uninit(curr);
 
-    str* result = str_c_init_2(instance->length-iterator);
+    str* result = str_c_init_2(after-before+1);
     
-    memcpy(result->cont, instance->cont+iterator, sizeof(char) * (result->length+1));
+    memcpy(result->cont, instance->cont+before, sizeof(char) * (result->length+1));
     result->cont[result->length] = '\0';
 
     return result;
 }
 
 str* str_r_strip(str* instance, void* ref, str* chars){
-    // find out how many chars need to be removed from the end
-    int iterator = 0;
+    int before = 0;
+    int after = instance->length;
     str* curr = str_c_init_2(1);
-    curr->cont[0] = instance->cont[iterator];
-    while (str_n_in(curr, chars) && iterator < instance->length){
-        iterator++;
-        curr->cont[0] = instance->cont[iterator];
+    curr->cont[0] = instance->cont[after];
+    while (str_n_in(curr, chars) && after > 0){
+        after--;
+        curr->cont[0] = instance->cont[after];
+    }
+    curr->cont[0] = instance->cont[before];
+    while (str_n_in(curr, chars) && before < after){
+        before++;
+        curr->cont[0] = instance->cont[before];
     }
     str_n_uninit(curr);
 
-    str* result = str_r_init_2(ref, instance->length-iterator);
+    str* result = str_r_init_2(ref, after-before+1);
     
-    // just in case they are overlapping areas
-    memmove(result->cont, instance->cont+iterator, sizeof(char) * (result->length+1));
+    memcpy(result->cont, instance->cont+before, sizeof(char) * (result->length+1));
     result->cont[result->length] = '\0';
 
     return result;
-    
+}
+
+
+/////////////////////////////////////////////////////////////////
+/* 
+index()	Searches the string for a specified value and returns the position of where it was found
+*/
+int str_n_index(str* instance, str* search){
+    if (search->length > instance->length){
+        return -1;
+    }
+    // use strstr for searching (because I am too lazy to write my own implementation)
+    char* result = strstr(instance->cont, search->cont);
+    if (result == NULL){
+        return -1;
+    }
+    return result - instance->cont;
+}
+
+/////////////////////////////////////////////////////////////////
+/*
+center(width, fillChar)	Returns a centered string
+*/
+str* str_c_center(str* instance, int width, char fillChar){
+    str* result;
+    int diff = instance->length - width;
+    if (diff >= 0){
+        result = str_c_becomes(instance);
+        return result;
+    }
+    result = str_c_init_2(width);
+    int halfed = -diff/2;
+
+    memcpy(result->cont+halfed, instance->cont, instance->length);
+    for (int i=0; i<halfed; i++){
+        result->cont[i] = fillChar;
+    }
+    for (int i=halfed+instance->length; i<width; i++){
+        result->cont[i] = fillChar;
+    }
+    result->cont[width] = '\0';
+    return result;
+}
+
+str* str_r_center(str* instance, void* ref, int width, char fillChar){
+    str* result;
+    int len = instance->length;
+    int diff = instance->length - width;
+    if (diff >= 0){
+        result = str_r_becomes(instance, ref);
+        return result;
+    }
+    result = str_r_init_2(ref, width);
+    int halfed = -diff/2;
+
+    memmove(result->cont+halfed, instance->cont, len);
+    for (int i=0; i<halfed; i++){
+        result->cont[i] = fillChar;
+    }
+    for (int i=halfed+len; i<result->length; i++){
+        result->cont[i] = fillChar;
+    }
+    result->cont[width] = '\0';
+    return result;
+}
+
+/////////////////////////////////////////////////////////////////
+/*
+find()	Searches the string for a specified value and returns the position of where it was found
+*/
+int str_n_find(str* instance, str* search){
+    return str_n_index(instance, search);
 }
 
 
 /////////////////////////////////////////////////////////////////
 /*
-center()	Returns a centered string
-count()	Returns the number of times a specified value occurs in a string
-encode()	Returns an encoded version of the string
 endswith()	Returns true if the string ends with the specified value
+*/
+int str_n_endswith(str* instance, str* search){
+    int diff = instance->length - search->length;
+    if (diff < 0){
+        return 0;
+    }
+    int k = 0;
+    for (int i=diff; i<instance->length; i++){
+        if (instance->cont[i] != search->cont[k]){
+            return 0;
+        }
+        k++;
+    }
+    return 1;
+}
+
+
+/////////////////////////////////////////////////////////////////
+/*
+startswith()	Returns true if the string starts with the specified value
+*/
+int str_n_startswith(str* instance, str* search){
+    int diff = instance->length - search->length;
+    if (diff < 0){
+        return 0;
+    }
+    int k = 0;
+    for (int i=0; i<search->length; i++){
+        if (instance->cont[i] != search->cont[k]){
+            return 0;
+        }
+        k++;
+    }
+    return 1;
+}
+
+
+/////////////////////////////////////////////////////////////////
+/*
+count()	Returns the number of times a specified value occurs in a string
+*/
+int str_n_count(str* instance, str* search){
+    int result = 0;
+    int diff = instance->length - search->length;
+    if (diff < 0){
+        return result;
+    }
+    int k = 0;
+    str* temp = str_c_becomes(instance);
+    char* org = temp->cont;
+    while (k  < instance->length){
+        int curr = str_n_index(temp, search);
+        if (curr == -1){
+            temp->cont = org;
+            str_n_uninit(temp);
+            return result;
+        }
+        temp->cont += curr + search->length;
+        result++;
+    }
+    temp->cont = org;
+    str_n_uninit(temp);
+    return result;
+}
+
+
+/////////////////////////////////////////////////////////////////
+/*
+isdigit()	Returns True if all characters in the string are digits
+*/
+int str_n_isdigit(str* instance){
+    for (int i=0; i<instance->length; i++){
+        int val = (int) instance->cont[i];
+        if (val < 48 || val > 57){
+            return 0;
+        }
+    }
+    return 1;
+}
+
+
+/////////////////////////////////////////////////////////////////
+/*
+isalpha()	Returns True if all characters in the string are in the alphabet
+*/
+int str_n_isalpha(str* instance){
+    for (int i=0; i<instance->length; i++){
+        int val = (int) instance->cont[i];
+
+        if ((val < 97 && val > 90) || val < 65 || val > 122){
+            return 0;
+        }
+    }
+    return 1;
+}
+
+/////////////////////////////////////////////////////////////////
+/*
+islower()	Returns True if all characters in the string are lower case
+*/
+int str_n_islower(str* instance){
+    for (int i=0; i<instance->length; i++){
+        int val = (int) instance->cont[i];
+
+        if (val < 97 || val > 122){
+            return 0;
+        }
+    }
+    return 1;
+}
+
+
+/////////////////////////////////////////////////////////////////
+/*
+isupper()	Returns True if all characters in the string are upper case
+*/
+int str_n_isupper(str* instance){
+    for (int i=0; i<instance->length; i++){
+        int val = (int) instance->cont[i];
+
+        if (val < 65 || val > 90){
+            return 0;
+        }
+    }
+    return 1;
+}
+
+/////////////////////////////////////////////////////////////////
+/*
+isalnum()	Returns True if all characters in the string are alphanumeric
+*/
+int str_n_isalnum(str* instance){
+    for (int i=0; i<instance->length; i++){
+        int val = (int) instance->cont[i];
+
+        if (val < 48 || (val > 57 && val < 65) || (val > 90 && val < 97) || val > 122){
+            return 0;
+        }
+    }
+    return 1;
+}
+
+
+/////////////////////////////////////////////////////////////////
+/* TODO
+replace()	Returns a string where a specified value is replaced with a specified value
+*/
+str* str_c_replace(str* instance, str* old, str* new){
+    
+
+}
+
+/////////////////////////////////////////////////////////////////
+/*
+encode()	Returns an encoded version of the string
 expandtabs()	Sets the tab size of the string
-find()	Searches the string for a specified value and returns the position of where it was found
 format()	Formats specified values in a string
 format_map()	Formats specified values in a string
-index()	Searches the string for a specified value and returns the position of where it was found
-isalnum()	Returns True if all characters in the string are alphanumeric
-isalpha()	Returns True if all characters in the string are in the alphabet
 isascii()	Returns True if all characters in the string are ascii characters
 isdecimal()	Returns True if all characters in the string are decimals
-isdigit()	Returns True if all characters in the string are digits
 isidentifier()	Returns True if the string is an identifier
-islower()	Returns True if all characters in the string are lower case
 isnumeric()	Returns True if all characters in the string are numeric
 isprintable()	Returns True if all characters in the string are printable
 isspace()	Returns True if all characters in the string are whitespaces
 istitle() 	Returns True if the string follows the rules of a title
-isupper()	Returns True if all characters in the string are upper case
 join()	Converts the elements of an iterable into a string
 ljust()	Returns a left justified version of the string
 maketrans()	Returns a translation table to be used in translations
 partition()	Returns a tuple where the string is parted into three parts
-replace()	Returns a string where a specified value is replaced with a specified value
 rfind()	Searches the string for a specified value and returns the last position of where it was found
 rindex()	Searches the string for a specified value and returns the last position of where it was found
 rjust()	Returns a right justified version of the string
@@ -516,27 +754,52 @@ rpartition()	Returns a tuple where the string is parted into three parts
 rsplit()	Splits the string at the specified separator, and returns a list
 split()	Splits the string at the specified separator, and returns a list
 splitlines()	Splits the string at line breaks and returns a list
-startswith()	Returns true if the string starts with the specified value
 translate()	Returns a translated string
 */
 
+/////////////////////////////////////////////////////////////////
+/*
+sint.toString - returns the string representation of the integer
+*/
+str* sint_c_toString(sint* instance){
+    // ceiling(instance->length/5) + 1 should be the perfect number of chars to represent the number
+    int chars = instance->length * sizeof(unsigned int) / 5 + 3; // plus one for null char and for extra space after ceiling
+
+    char buffer[chars];
+
+    buffer[0] = '\0';
+
+    
+
+
+
+    buffer[chars-1] = '\0';
+
+}
+
+/////////////////////////////////////////////////////////////////
 
 int main(){
     void* memspace = malloc(1000);
-    char* chars = "\n\n\n\t   helloWorl?A!d wo2rld!";
-    char* chars2 = " \n\t";
+    char* chars = "helloWorl?A!d wo2rld!";
+    char* chars2 = "abc123";
 
     str* test = str_r_init(memspace, chars);
     str* breakChars = str_c_init(chars2);
 
+    /*
     printf("Length: %d\n", test->length);
 
     printf("Test1: %s", test->cont);
 
-    str* test2 = str_r_lstrip(test, memspace+100, breakChars);
+    str* test2 = str_r_center(test, test, 30, ',');
 
+    
     printf("Length2: %d\n", test2->length);
     printf("Test2: %s", test2->cont);
+    */
+    printf("%d\n", str_n_isalnum(breakChars));
+   
 
     // free the memory
     str_n_uninit(breakChars);
