@@ -65,7 +65,7 @@ class Optimizer:
 
     def normalize(self):
         # normalize the python program so that only one function call happens per line
-        norm = normalizer.Normalizer()
+        norm = normalizer.Normalizer(lines)
         norm.normalize()
         return norm.result()
 

@@ -3,22 +3,17 @@ import normalizer
 with open("test.py", "r") as f:
     lines = f.readlines()
 
+print("raw data:\n", lines)
 norm = normalizer.Normalizer(lines)
-
-print(lines)
-
-print()
-print()
-print()
-
 tokens = norm.tokenize(lines)
-print(tokens)
 
 print()
 print()
 print()
+print()
 
-print(tokens[-1])
+print("normalized:\n")
+[print(str(x).strip()) for x in tokens]
 
 def test(var1, var2, var3):
     print("testing")
@@ -28,8 +23,20 @@ def test(var1, var2, var3):
 
 class Testing:
 
-    def __init__(self):
+    def __init__(self, test="test,ing"):
         pass
 
     def __str__(self):
         pass
+
+try:
+    print()
+except:
+    print()
+print()
+print()
+print()
+
+print("final tokens:\n", tokens)
+
+
