@@ -58,7 +58,7 @@ str* str_r_init(void* ref, char* data){
     int memsize = sizeof(char) * (len + 1);
     // the character array is going to be allocated directly after the 
     // structure itself
-    result->cont = ref + sizeof(str);
+    result->cont = ((char*) ref) + sizeof(str);
     memcpy(result->cont, data, memsize);
     return result;
 }
@@ -76,7 +76,7 @@ str* str_c_init_2(int len){
 str* str_r_init_2(void* ref, int len){
     str* result = (str*) ref;
     result->length = len;
-    result->cont = ref + sizeof(str);
+    result->cont = ((char*) ref) + sizeof(str);
     result->cont[len] = '\0';
     return result;
 }
@@ -762,13 +762,14 @@ translate()	Returns a translated string
 sint.toString - returns the string representation of the integer
 */
 str* sint_c_toString(sint* instance){
-    // ceiling(instance->length/5) + 1 should be the perfect number of chars to represent the number
-    int chars = instance->length * sizeof(unsigned int) / 5 + 3; // plus one for null char and for extra space after ceiling
+    // ceiling(instance->length/4) + 1 should be the perfect number of chars to represent the number
+    int chars = instance->length * (sizeof(unsigned int) >> 2) + 3; // plus one for null char and for extra space after ceiling
 
     char buffer[chars];
 
     buffer[0] = '\0';
 
+    
     
 
 

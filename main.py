@@ -14,17 +14,19 @@ def tokenize(filename):
     for i in range(len(lines)):
         lines[i] = " ".split(lines[i])
 
-test = 12
-test.as_integer_ratio
-test.bit_count
-test.bit_length
-test.conjugate
-test.denominator
-test.from_bytes
-test.to_bytes
-test.imag
-test.numerator
-test.real
+test = [12]
+test.append
+test.extend
+test.sort
+test.reverse
+test.insert
+test.pop
+test.remove
+test.clear
+test.copy
+test.count
+test.index
+
 class Main:
 
     def __init__(self, safety:bool=False):
