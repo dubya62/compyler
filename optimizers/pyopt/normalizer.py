@@ -269,7 +269,7 @@ class Normalizer:
                 result.append(token)
             else:
                 result2 = []
-                def helper(content:str, result)->list[str]:
+                def helper(content:str, result, setvar:int=0)->list[str]:
                     # replace inside of parentheses with a tempVar
                     quotes = 0
                     stack = []
@@ -296,13 +296,50 @@ class Normalizer:
                     
                     # recursively call on inside of parentheses
                     if inside != "":
-                        inside_handled = helper(inside, result)
+                        inside_handled = helper(inside, result, 1)
+                        result = inside_handled
+                        remaining = before + "(tempVar)" + after
+                        content = remaining
+
 
                     # replace to the left of . with tempVar
-                    
-                    # recursively call on left of .
+                    dot_index = -1
+                    quotes = 0
+                    for i in range(len(content)-1, -1, -1):
+                        if content[i] == '"':
+                            quotes ^= 1
+                            quotes &= 1
+                        elif content[i] == '.':
+                            dot_index = i 
+                            break
+                    if dot_index != -1:
+                        left = content[:dot_index]
+                        right = content[dot_index+1:]
+                    else:
+                        left = ""
+                        right = ""
 
-                    
+                    # recursively call on left of .
+                    if left != "":
+                        left_handled = helper(left, result, 1)
+                        result = left_handled
+                        remaining = "tempVar." + right
+                        content = remaining
+
+                    if setvar:
+                        temp_result = ""
+                        iterator = 0
+                        for i in range(len(content)):
+                            if not iterator:
+                                if not content[i].isspace():
+                                    iterator = 1
+                                    temp_result += "tempVar = "
+                            temp_result += content[i]
+
+                        result.append(temp_result)
+                    else:
+                        result.append(content)
+
 
                     return result
                 result += helper(token, result2)
