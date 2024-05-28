@@ -45,7 +45,8 @@ print()
 
 
 normalized = norm.normalize(tokens)
-print("normalized:\n", normalized)
+print("normalized:\n")
+[print(str(x).strip()) for x in normalized]
 
 
 

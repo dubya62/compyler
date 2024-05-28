@@ -268,28 +268,46 @@ class Normalizer:
                 # TODO: need to deal with parameter normalization
                 result.append(token)
             else:
-                # nested parentheses should be the only thing to normalize
-                current = []
-                def simplify(string:str, current:list[str]):
-                    """recursive function to make nested function calls use multiple lines"""
+                result2 = []
+                def helper(content:str, result)->list[str]:
+                    # replace inside of parentheses with a tempVar
+                    quotes = 0
                     stack = []
-                    iterator = 0
-                    # get number of parentheses in the string
-                    splitted = quote_split(string, "(")
-                    n = len(splitted) - 1
-
-                    start = splitted[0]
+                    inside = ""
+                    before = ""
+                    after = ""
+                    for i in range(len(content)-1, -1, -1):
+                        if content[i] == '"':
+                            quotes ^= 1
+                            quotes &= 1
+                        elif content[i] == ")" and quotes == 0:
+                            if len(stack) == 0:
+                                after = content[i+1:]
+                                stack.append("")
+                                continue
+                            stack.append("")
+                        elif content[i] == "(" and quotes == 0:
+                            stack.pop()
+                            if len(stack) == 0:
+                                before = content[:i]
+                                break
+                        if len(stack) != 0:
+                            inside = content[i] + inside
                     
-                    if n < 2:
-                        current.insert(0, string)
-                        return current
+                    # recursively call on inside of parentheses
+                    if inside != "":
+                        inside_handled = helper(inside, result)
+
+                    # replace to the left of . with tempVar
+                    
+                    # recursively call on left of .
 
                     
 
+                    return result
+                result += helper(token, result2)
+                
 
-                    return current
-                current = simplify(token, current)
-                result += current
 
         return result
 
