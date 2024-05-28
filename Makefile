@@ -20,3 +20,4 @@ clean:
 	rm -f str
 	rm -f sint
 	rm -f darr
+	rm -f gmon.out
