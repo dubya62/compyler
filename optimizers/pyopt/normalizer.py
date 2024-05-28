@@ -156,9 +156,9 @@ class Normalizer:
                 # get the function name and parameters from the current line
                 continues = iterator - line - 1
 
-                splitted = stripped[4:].split("(")
+                splitted = quote_split(stripped[4:], "(")
                 name = splitted[0].strip()
-                params = quote_split(splitted[1].split(")")[0], ",")
+                params = quote_split(quote_split(splitted[1], ")")[0], ",")
 
                 if len(params) == 1 and params[0] == "":
                     params = []
@@ -196,13 +196,13 @@ class Normalizer:
                 # get the function name and parameters from the current line
                 continues = iterator - line - 1
 
-                splitted = stripped[6:].split("(")
+                splitted = quote_split(stripped[6:], "(")
                 if len(splitted) == 1:
                     name = splitted[0].strip().strip(":")
                     params = []
                 else:
                     name = splitted[0].strip()
-                    params = quote_split(splitted[1].split(")")[0], ",")
+                    params = quote_split(quote_split(splitted[1], ")")[0], ",")
                     if len(params) == 1 and params[0] == "":
                         params = []
                 
@@ -252,18 +252,50 @@ class Normalizer:
         return tokens
 
 
-    def normalize(self):
+    def normalize(self, content):
         """
         Go through the python program,
         making sure there is only one function call per line
         (making the code less pythonic)
         """
-        tokens = self.tokenize(self.lines)
+        # go through the contents of the main program, then recursively call on all functions/classes/code blocks
+        result = []
 
-        
+        # each line of main content should either be a function call or an assignment (using a function call)
+        for token in content:
+            if type(token) != str:
+                token.content = self.normalize(token.content)
+                # TODO: need to deal with parameter normalization
+                result.append(token)
+            else:
+                # nested parentheses should be the only thing to normalize
+                current = []
+                def simplify(string:str, current:list[str]):
+                    """recursive function to make nested function calls use multiple lines"""
+                    stack = []
+                    iterator = 0
+                    # get number of parentheses in the string
+                    splitted = quote_split(string, "(")
+                    n = len(splitted) - 1
+
+                    start = splitted[0]
+                    
+                    if n < 2:
+                        current.insert(0, string)
+                        return current
+
+                    
+
+
+                    return current
+                current = simplify(token, current)
+                result += current
+
+        return result
 
 
     def result(self):
         return self.lines
+
 
 

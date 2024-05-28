@@ -12,7 +12,7 @@ print()
 print()
 print()
 
-print("normalized:\n")
+print("tokenized:\n")
 [print(str(x).strip()) for x in tokens]
 
 def test(var1, var2, var3):
@@ -38,5 +38,14 @@ print()
 print()
 
 print("final tokens:\n", tokens)
+
+print()
+print()
+print()
+
+
+normalized = norm.normalize(tokens)
+print("normalized:\n", normalized)
+
 
 
