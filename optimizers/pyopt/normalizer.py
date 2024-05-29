@@ -269,7 +269,7 @@ class Normalizer:
                 result.append(token)
             else:
                 result2 = []
-                def helper(content:str, result, setvar:int=0)->list[str]:
+                def helper(content:str, result, setvar:int=0, varNum:int=0, top:int=1)->list[str]:
                     # replace inside of parentheses with a tempVar
                     quotes = 0
                     stack = []
@@ -296,9 +296,10 @@ class Normalizer:
                     
                     # recursively call on inside of parentheses
                     if inside != "":
-                        inside_handled = helper(inside, result, 1)
+                        inside_handled, varNum = helper(inside, result, 1, varNum, 0)
                         result = inside_handled
-                        remaining = before + "(tempVar)" + after
+                        remaining = before + f"(tempVar{varNum})" + after
+                        varNum += 1
                         content = remaining
 
 
@@ -319,11 +320,22 @@ class Normalizer:
                         left = ""
                         right = ""
 
+                    assignment = ""
+                    if top:
+                        splitted = quote_split(left, "=")
+                        if len(splitted) > 1:
+                            assignment = "=".join(splitted[:-1])
+                            left = splitted[-1]
+
                     # recursively call on left of .
                     if left != "":
-                        left_handled = helper(left, result, 1)
+                        left_handled, varNum = helper(left, result, 1, varNum, top)
                         result = left_handled
-                        remaining = "tempVar." + right
+                        remaining = ""
+                        if assignment != "":
+                            remaining = f"{assignment}= "
+                        remaining += f"tempVar{varNum}." + right
+                        varNum += 1
                         content = remaining
 
                     if setvar:
@@ -333,18 +345,18 @@ class Normalizer:
                             if not iterator:
                                 if not content[i].isspace():
                                     iterator = 1
-                                    temp_result += "tempVar = "
-                            temp_result += content[i]
+                                    temp_result += f"tempVar{varNum} = "
+                            if iterator:
+                                temp_result += content[i]
 
                         result.append(temp_result)
                     else:
                         result.append(content)
 
 
-                    return result
-                result += helper(token, result2)
-                
-
+                    return result, varNum
+                res, varNum = helper(token, result2)
+                result += res
 
         return result
 
