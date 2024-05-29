@@ -14,18 +14,6 @@ def tokenize(filename):
     for i in range(len(lines)):
         lines[i] = " ".split(lines[i])
 
-test = [12]
-test.append
-test.extend
-test.sort
-test.reverse
-test.insert
-test.pop
-test.remove
-test.clear
-test.copy
-test.count
-test.index
 
 class Main:
 
