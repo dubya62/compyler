@@ -1,6 +1,5 @@
 // This file is for static integers
-// In some cases, normal integers in C work fine, 
-// but integers in python are not limited by 32 or 64 bits // This file is for large integers who cannot request more memory after being created
+// In some cases, normal integers in C work fine, // but integers in python are not limited by 32 or 64 bits // This file is for large integers who cannot request more memory after being created
 
 #include <stdio.h>
 #include <stdlib.h>
