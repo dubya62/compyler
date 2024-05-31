@@ -15,8 +15,10 @@ import complexities
 
 
 class Line:
-    def __init__(self, content):
+    def __init__(self, content:str, the_type:str):
         self.content = content
+        # holds the type of the result of the expression on the left
+        self.type = the_type
         self.complexity = self.analyze_complexity()
 
 

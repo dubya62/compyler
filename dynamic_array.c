@@ -7,14 +7,27 @@ This implementation has slow deletes and inserts, but has fast retrieval using i
 (basically a normal array in C but allows data of different types
 */
 
+
+
+
 #include <stdlib.h>
 #include <string.h>
 
 #include "dynamic_array.h"
 
+#ifndef DYNAMIC_TYPE
+#define DYNAMIC_TYPE
+typedef enum{
+   STR,
+   INT,
+   DARR,
+} DynamicType;
+#endif
+
 #ifndef DYNAMIC_NODE
 #define DYNAMIC_NODE
 typedef struct{
+    DynamicType type;
     void* data;
 } DynamicNode;
 #endif
@@ -57,9 +70,10 @@ DynamicArray* DynamicArray_c_init(void** contents){
 
     result->cont = (DynamicNode*) malloc(sizeof(DynamicNode) * result->maxLength);
 
-    memcpy(result->cont, contents, result->length * sizeof(char*));
+    memcpy(result->cont, contents, result->length * sizeof(DynamicNode));
     for (int i=result->length; i<result->maxLength; i++){
         (result->cont[i]).data = NULL;
+        (result->cont[i]).type = -1;
     }
 
     return result;
@@ -89,9 +103,10 @@ DynamicArray* DynamicArray_r_init(void* ref, void** contents){
 
     result->cont = (DynamicNode*) (((char*) ref) + sizeof(DynamicArray));
 
-    memmove(result->cont, contents, result->length * sizeof(char*));
+    memmove(result->cont, contents, result->length * sizeof(DynamicNode));
     for (int i=result->length; i<result->maxLength; i++){
         (result->cont[i]).data = NULL;
+        result->cont[i].type = -1;
     }
 
     return result;
@@ -117,6 +132,7 @@ DynamicArray* DynamicArray_c_init_2(int length){
 
     for (int i=0; i<result->maxLength; i++){
         (result->cont[i]).data = NULL;
+        result->cont[i].type = -1;
     }
 
     return result;
@@ -142,6 +158,7 @@ DynamicArray* DynamicArray_r_init_2(void* ref, int length){
 
     for (int i=0; i<result->maxLength; i++){
         (result->cont[i]).data = NULL;
+        result->cont[i].type = -1;
     }
 
     return result;
@@ -189,8 +206,24 @@ DynamicArray* DynamicArray_r_becomes(DynamicArray* instance, void* ref){
 
 
 /////////////////////////////////////////////////////////////////
+/* OPERATES DIRECTLY ON AN ARRAY
+append - add an element to the end of a list. If the list is full, double its max size
+*/
+DynamicArray* DynamicArray_c_append(DynamicArray* instance, void* element){
+    // if we need to double the array first
+    DynamicArray* result;
+    if (instance->length == instance->maxLength){ 
+        // create a new array
+        result = DynamicArray_c_init_2(instance->maxLen+1);
+        memcpy(result->cont, instance->cont, instance->maxLen * sizeof(DynamicNode));
+        result->length = instance->length;
+        DynamicArray_n_uninit(instance);
+    }
+}
+
+
+/////////////////////////////////////////////////////////////////
 /*
-append
 extend
 sort
 reverse
@@ -209,17 +242,30 @@ index
 int main(){
     void* memspace = malloc(65536);
 
-    DynamicArray* test = DynamicArray_r_init_2(memspace, 64);
+    DynamicArray* test = DynamicArray_r_init_2(memspace, 2);
 
-    char* data = "Hello, World!\n";
+    char* data = "Hello, World!";
     int data2 = 5;
 
-    (test->cont[0]).data = (char*) data;
-    (test->cont[1]).data = (int*) &data2;
+    (test->cont[0]).data = data;
+    test->cont[0].type = STR;
+    (test->cont[1]).data = &data2;
+    test->cont[1].type = INT;
 
-    // you must type cast the pointer before dereferencing it
-    printf("Test1: %s\n", *((char**)((test->cont[0]).data)));
-    printf("Test2: %d\n", *((int*)&((test->cont[1]).data)));
+    printf("Length of array: %d\n", test->length);
+    for (int i=0; i<test->length; i++){
+        switch(test->cont[i].type){
+            case 0:
+                printf("%s\n", ((char*) test->cont[i].data));
+                break;
+            case 1:
+                printf("%d\n", *((int*)test->cont[i].data));
+                break;
+            default:
+                printf("This element is not printable");
+                break;
+        }
+    }
 
     free(memspace);
     return 0;
