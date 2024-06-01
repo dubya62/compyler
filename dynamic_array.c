@@ -307,10 +307,21 @@ DynamicArray* DynamicArray_r_reverse(DynamicArray* instance, void* ref){
 
 /////////////////////////////////////////////////////////////////
 /*
+pop - remove the last element from an array and return its value (if array is empty, return NULL)
+*/
+void* DynamicArray_n_pop(DynamicArray* instance){
+    if (instance->length == 0){
+        return NULL;
+    }
+    instance->length--;
+    return instance->cont[instance->length];
+}
+
+/////////////////////////////////////////////////////////////////
+/*
 extend
 sort
 insert
-pop
 remove
 clear
 copy
