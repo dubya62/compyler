@@ -14,30 +14,12 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "sint.h"
 #include "str.h"
 
 #define True 1
 #define False 0
 
-#ifndef SINT
-#define SINT
-typedef struct {
-    int length; // the number of elements in the array
-    int sign; 
-    unsigned int* cont;
-} sint;
-#endif
-
-#ifndef STR
-#define STR
-// static str object
-typedef struct{
-    // length does not include the null terminator
-    int length; // should probably change this to a dynamic int later
-    // cont should be a buffer of size at least length+1
-    char* cont; // contents of the string
-} str;
-#endif
 
 // initialize a static str object
 str* str_c_init(char* data){
@@ -779,33 +761,4 @@ str* sint_c_toString(sint* instance){
 }
 
 /////////////////////////////////////////////////////////////////
-
-int main(){
-    void* memspace = malloc(1000);
-    char* chars = "helloWorl?A!d wo2rld!";
-    char* chars2 = "abc123";
-
-    str* test = str_r_init(memspace, chars);
-    str* breakChars = str_c_init(chars2);
-
-    /*
-    printf("Length: %d\n", test->length);
-
-    printf("Test1: %s", test->cont);
-
-    str* test2 = str_r_center(test, test, 30, ',');
-
-    
-    printf("Length2: %d\n", test2->length);
-    printf("Test2: %s", test2->cont);
-    */
-    printf("%d\n", str_n_isalnum(breakChars));
-   
-
-    // free the memory
-    str_n_uninit(breakChars);
-    free(memspace);
-    return 0;
-}
-
 

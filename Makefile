@@ -1,23 +1,52 @@
 
-all:
-	echo "All dependencies gathered."
+CC := gcc -O3
+OBJ := gcc -c -O3
+DBG := gcc -g
 
-str: str.c str.h
-	gcc -o str str.c -O3
+OBJECTS := str.o sint.o darr.o stack.o main.o
+all: $(OBJECTS)
+	echo "All object files created."
 
-debug: str.c str.h sint.c sint.h dynamic_array.c dynamic_array.h
-	gcc -o str str.c -g
-	gcc -o sint sint.c -g
-	gcc -o darr dynamic_array.c -g
+# test
+main.o: main.c
+	$(OBJ) -o $@ $<
 
-sint: sint.c sint.h
-	gcc -o sint sint.c -O3
+main: $(OBJECTS)
+	$(CC) -o $@ $^
 
-darr: dynamic_array.c dynamic_array.h
-	gcc -o darr dynamic_array.c -O3
+# str
+str.o: str.c str.h
+	$(OBJ) -o $@ $<
 
+str: str.o
+	$(CC) -o $@ $^
+
+
+# sint
+sint.o: sint.c sint.h
+	$(OBJ) -o $@ $<
+
+sint: sint.o
+	$(CC) -o $@ $^
+
+
+# dynamic array
+darr.o: dynamic_array.c dynamic_array.h
+	$(OBJ) -o $@ $<
+
+darr: darr.o
+	$(CC) -o $@ $^
+
+# stack
+stack.o: stack.c stack.h
+	$(OBJ) -o $@ $<
+
+stack: stack.o dynamic_array.o
+	$(CC) -o $@ $^
+
+# clean
 clean:
-	rm -f str
-	rm -f sint
-	rm -f darr
+	rm -f $(basename $(OBJECTS))
+	rm -f $(OBJECTS)
 	rm -f gmon.out
+

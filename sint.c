@@ -7,16 +7,6 @@
 
 #include "sint.h"
 
-#ifndef SINT
-#define SINT
-typedef struct {
-    int length; // the number of elements in the array
-    int sign; 
-    unsigned int* cont;
-} sint;
-#endif
-
-
 /////////////////////////////////////////////////////////////////
 /*
 init
@@ -1062,27 +1052,5 @@ real - returns the real part of a complex number
 */
 
 /////////////////////////////////////////////////////////////////
-
-#include "str.h"
-
-int main(){
-    void* memspace = malloc(65536);
-
-    sint* test = sint_r_init(memspace, 11);
-    sint* test2 = sint_r_init_2(((char*) memspace)+100, 2);
-    test2->cont[1] = 7;
-
-    printf("%d\n", test->cont[0]);
-
-    sint* test3 = sint_r_sub(test, test2, test2);
-
-    printf("%d\n", test3->cont[test3->length-1]);
-
-    //sint_n_uninit(test3);
-    free(memspace);
-    return 0;
-}
-
-
 
 
