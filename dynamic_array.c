@@ -17,23 +17,6 @@ This implementation has slow deletes and inserts, but has fast retrieval using i
 #include "dynamic_type.h"
 
 
-#ifndef DYNAMIC_NODE
-#define DYNAMIC_NODE
-typedef struct{
-    DynamicType type;
-    void* data;
-} DynamicNode;
-#endif
-
-#ifndef DYNAMIC_ARRAY
-#define DYNAMIC_ARRAY
-typedef struct{
-    int length;
-    int maxLength;
-    DynamicNode* cont;
-    int initialization; // whether or not the content was allocated with malloc
-} DynamicArray;
-#endif
 
 /////////////////////////////////////////////////////////////////
 /*

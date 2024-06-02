@@ -3,7 +3,7 @@ CC := gcc -O3
 OBJ := gcc -c -O3
 DBG := gcc -g
 
-OBJECTS := str.o sint.o darr.o stack.o main.o
+OBJECTS := str.o sint.o darr.o stack.o main.o dtype.o
 all: $(OBJECTS)
 	echo "All object files created."
 
@@ -12,6 +12,13 @@ main.o: main.c
 	$(OBJ) -o $@ $<
 
 main: $(OBJECTS)
+	$(CC) -o $@ $^
+
+# dtype
+dtype.o: dynamic_type.c dynamic_type.h
+	$(OBJ) -o $@ $<
+
+dtype: dtype.o
 	$(CC) -o $@ $^
 
 # str
@@ -34,14 +41,14 @@ sint: sint.o
 darr.o: dynamic_array.c dynamic_array.h
 	$(OBJ) -o $@ $<
 
-darr: darr.o
+darr: darr.o dtype.o
 	$(CC) -o $@ $^
 
 # stack
 stack.o: stack.c stack.h
 	$(OBJ) -o $@ $<
 
-stack: stack.o dynamic_array.o
+stack: stack.o dynamic_array.o dtype.o
 	$(CC) -o $@ $^
 
 # clean

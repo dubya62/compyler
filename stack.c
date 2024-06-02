@@ -4,16 +4,7 @@
 
 
 #include "stack.h"
-#include "dynamic_array.h"
-#include "dynamic_type.h"
 
-
-#ifndef STACK
-#define STACK
-typedef struct{ // stack is simply a dynamic array with fewer functions
-    DynamicArray* cont;
-} Stack;
-#endif
 
 /////////////////////////////////////////////////////////////////
 /*

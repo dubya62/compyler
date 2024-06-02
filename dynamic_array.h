@@ -1,14 +1,6 @@
 
 #include "dynamic_type.h"
 
-#ifndef DYNAMIC_NODE
-#define DYNAMIC_NODE
-typedef struct{
-    DynamicType type;
-    void* data;
-} DynamicNode;
-#endif
-
 #ifndef DYNAMIC_ARRAY
 #define DYNAMIC_ARRAY
 typedef struct{
