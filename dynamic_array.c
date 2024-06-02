@@ -14,15 +14,8 @@ This implementation has slow deletes and inserts, but has fast retrieval using i
 #include <string.h>
 
 #include "dynamic_array.h"
+#include "dynamic_type.h"
 
-#ifndef DYNAMIC_TYPE
-#define DYNAMIC_TYPE
-typedef enum{
-   STR,
-   INT,
-   DARR,
-} DynamicType;
-#endif
 
 #ifndef DYNAMIC_NODE
 #define DYNAMIC_NODE
@@ -309,88 +302,25 @@ DynamicArray* DynamicArray_r_reverse(DynamicArray* instance, void* ref){
 /*
 pop - remove the last element from an array and return its value (if array is empty, return NULL)
 */
-void* DynamicArray_n_pop(DynamicArray* instance){
+DynamicNode* DynamicArray_n_pop(DynamicArray* instance){
     if (instance->length == 0){
         return NULL;
     }
     instance->length--;
-    return instance->cont[instance->length];
+    return &(instance->cont[instance->length]);
 }
+
 
 /////////////////////////////////////////////////////////////////
 /*
+remove
 extend
 sort
 insert
-remove
 clear
 copy
 count
 index
 */
-
-#include <stdio.h>
-
-
-int main(int argc, char** argv){
-    void* memspace = malloc(65536);
-
-    DynamicArray* test = DynamicArray_r_init_2(memspace, 2);
-
-    char* data = "Hello, World!";
-    int data2 = 5;
-
-    (test->cont[0]).data = data;
-    test->cont[0].type = STR;
-    (test->cont[1]).data = &data2;
-    test->cont[1].type = INT;
-
-
-    DynamicNode* test2 = malloc(sizeof(DynamicNode));
-    test2->data = data;
-    test2->type = STR;
-
-    DynamicNode* test3 = malloc(sizeof(DynamicNode));
-    test3->data = &data2;
-    test3->type = INT;
-
-    test = DynamicArray_r_append(test, test, test2);
-    test = DynamicArray_r_append(test, test, test2);
-    test = DynamicArray_r_append(test, test, test3);
-
-    printf("Length of array: %d\n", test->length);
-    for (int i=0; i<test->length; i++){
-        switch(test->cont[i].type){
-            case 0:
-                printf("%s\n", ((char*) test->cont[i].data));
-                break;
-            case 1:
-                printf("%d\n", *((int*)test->cont[i].data));
-                break;
-            default:
-                printf("This element is not printable");
-                break;
-        }
-    }
-
-    DynamicArray* test4 = DynamicArray_r_reverse(test, memspace+1000);
-    
-    printf("Length of array: %d\n", test4->length);
-    for (int i=0; i<test4->length; i++){
-        switch(test4->cont[i].type){
-            case 0:
-                printf("%s\n", ((char*) test4->cont[i].data));
-                break;
-            case 1:
-                printf("%d\n", *((int*) test4->cont[i].data));
-                break;
-            default:
-                printf("This element is not printable");
-                break;
-        }
-    }
-    free(memspace);
-    return 0;
-}
 
 
