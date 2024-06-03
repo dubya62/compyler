@@ -3,7 +3,7 @@ CC := gcc -O3
 OBJ := gcc -c -O3
 DBG := gcc -g
 
-OBJECTS := str.o sint.o darr.o stack.o main.o dtype.o
+OBJECTS := str.o sint.o darr.o stack.o main.o dtype.o dictionary.o
 all: $(OBJECTS)
 	echo "All object files created."
 
@@ -12,6 +12,13 @@ main.o: main.c
 	$(OBJ) -o $@ $<
 
 main: $(OBJECTS)
+	$(CC) -o $@ $^
+
+# dictionary
+dictionary.o: dictionary.c dictionary.h
+	$(OBJ) -o $@ $<
+
+dictionary: dictionary.o
 	$(CC) -o $@ $^
 
 # dtype
